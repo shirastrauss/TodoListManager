@@ -10,12 +10,14 @@ import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.ListView;
 
+/* The main activity of the TodoListManager aplication */
 public class TodoListManagerActivity extends Activity {
 
-	private TodoItemDisplayAdapter adapter;
+	// an adapter for displaying the TodoItem list
+	private TodoItemDisplayAdapter adapter; 
 	
-	EditText edtNewItem;
-	ListView lstTodoItems;
+	EditText edtNewItem; // a text box for inserting new items
+	ListView lstTodoItems; // a list view that will contain the todo items
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,11 +25,12 @@ public class TodoListManagerActivity extends Activity {
         setContentView(R.layout.activity_todo_list_manager);
         
         edtNewItem = (EditText) findViewById(R.id.edtNewItem);
-        System.out.println(R.id.lstTodoItems);
         lstTodoItems = (ListView) findViewById(R.id.lstTodoItems);
         
+		// creates an ArrayList for storing the TodoItems
         List<TodoItem> todoItems = new ArrayList<TodoItem>();
         
+		// creates an Adapter for displaying the TodoItem list
         adapter = new  TodoItemDisplayAdapter(this, todoItems);
         lstTodoItems.setAdapter(adapter);
     }
@@ -41,11 +44,15 @@ public class TodoListManagerActivity extends Activity {
     }
     
     public boolean onOptionsItemSelected(MenuItem item) {
-    	  switch (item.getItemId()){
+    	  
+		  // checks which menu item was selected (Add or Delete)
+		  switch (item.getItemId()){
     	  case R.id.menuItemAdd:
+			  // adds the new requested item to the list
     		  adapter.add(new TodoItem(edtNewItem.getText().toString()));
     		  break;
     	  case R.id.menuItemDelete:
+			  // removes the selected item from the list
     		  adapter.remove((TodoItem) lstTodoItems.getSelectedItem());
     		  break;
     	  }
