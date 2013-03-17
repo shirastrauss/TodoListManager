@@ -1,4 +1,4 @@
-package il.ac.huji.todolistmanager;
+package il.ac.huji.todolist;
 
 import java.util.ArrayList;
 import java.util.List;

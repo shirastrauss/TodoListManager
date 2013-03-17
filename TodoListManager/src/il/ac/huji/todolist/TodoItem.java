@@ -1,4 +1,4 @@
-package il.ac.huji.todolistmanager;
+package il.ac.huji.todolist;
 
 /* This class represents a todo item */
 public class TodoItem {
