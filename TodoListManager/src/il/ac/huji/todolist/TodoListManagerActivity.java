@@ -1,13 +1,12 @@
 package il.ac.huji.todolist;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,7 +17,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 
 /**
- * The main activity of the TodoListManager aplication
+ * The main activity of the TodoListManager application
  */
 public class TodoListManagerActivity extends Activity {
 
@@ -26,11 +25,12 @@ public class TodoListManagerActivity extends Activity {
 	final static private int ADD_ITEM = 101;
 
 	// an adapter for displaying the TodoItem list
-	private TodoItemDisplayAdapter adapter; 
+	private TodoItemDisplayAdapter adapter;
 
 	EditText edtNewItem; // a text box for inserting new items
 	ListView lstTodoItems; // a list view that will contain the todo items
 
+	private TodoDAL todoDal;
 	
 	/**
 	 * Called when the activity is first created.
@@ -47,14 +47,16 @@ public class TodoListManagerActivity extends Activity {
 		edtNewItem = (EditText) findViewById(R.id.edtNewItem);
 		lstTodoItems = (ListView) findViewById(R.id.lstTodoItems);
 
-		// creates an ArrayList for storing the TodoItems
-		List<TodoItem> todoItems = new ArrayList<TodoItem>();
-
-		// creates an Adapter for displaying the TodoItem list
-		adapter = new  TodoItemDisplayAdapter(this, todoItems);
-		lstTodoItems.setAdapter(adapter);
-
 		registerForContextMenu(lstTodoItems); 
+		
+		todoDal = new TodoDAL(this);
+		
+		// creates an Adapter for displaying the TodoItem list
+		String[] from = { "title", "due" };
+		int[] to = { R.id.txtTodoTitle, R.id.txtTodoDueDate };
+		adapter = new TodoItemDisplayAdapter(this,R.layout.row, todoDal.getCursor(), from, to);
+		
+		lstTodoItems.setAdapter(adapter); 	
 	}
 
 
@@ -111,7 +113,8 @@ public class TodoListManagerActivity extends Activity {
 		
 		// sets the header of the context menu to contain 
 		// the title of the selected todo item
-		String title = adapter.getItem(info.position).get_title();
+		Cursor c = (Cursor)adapter.getItem(info.position);
+		String title = c.getString(TodoDAL.TITLE_COL);
 		menu.setHeaderTitle(title);
 		
 		// checks whether the current todo item is of type "Call"-
@@ -130,25 +133,28 @@ public class TodoListManagerActivity extends Activity {
 	/**
 	 * This function is called whenever an item in a context menu is selected.
 	 * Parameters:
-	 * item - he context menu item that was selected.
+	 * item - the context menu item that was selected.
 	 */
 	public boolean onContextItemSelected(MenuItem item) {
 
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo)item.getMenuInfo();
-
-		TodoItem todoItem = adapter.getItem(info.position);
+		
+		Cursor c = (Cursor)adapter.getItem(info.position);
+		String title = c.getString(TodoDAL.TITLE_COL);
+		long due = c.getLong(TodoDAL.DUE_COL);
+		
+		TodoItem todoItem = new TodoItem(title, new Date(due));
 		
 		// checks which of the menu options was selected
 		switch (item.getItemId()){
 		case R.id.menuItemDelete: // Delete
-			adapter.remove(todoItem);
+			todoDal.delete(todoItem);	
 			break;
 		case R.id.menuItemCall: // Call
 			// launches the dial activity with the item's phone number
-			String telNum = "tel:" + todoItem.get_title().substring(5);
+			String telNum = "tel:" + title.substring(5);
 			Intent dial = new Intent(Intent.ACTION_DIAL, Uri.parse(telNum));
 			startActivity(dial);
-
 			break;
 		}
 
@@ -172,7 +178,13 @@ public class TodoListManagerActivity extends Activity {
 		// if so, creates a new TodoItem from the data returned in the intent
 		// and adds the new item to the TodoItems list
 		if(resultCode==RESULT_OK){
-			adapter.add(new TodoItem(data.getExtras().getString("title"),(Date)data.getExtras().get("dueDate")));
+			
+			String title = data.getExtras().getString("title");
+			Date dueDate = (Date)data.getExtras().get("dueDate");
+			
+			TodoItem todoItem = new TodoItem(title, dueDate);
+			
+			todoDal.insert(todoItem);
 		}
 	}
 

@@ -2,8 +2,11 @@ package il.ac.huji.todolist;
 
 import java.util.Date;
 
-/* This class represents a todo item */
-public class TodoItem {
+/* 
+ * This class represents a todo item.
+ * It implements the ITodoItem interface
+ */
+public class TodoItem implements ITodoItem{
 
 	private String _title;
 	private Date _dueDate;
@@ -15,12 +18,12 @@ public class TodoItem {
 	}
 
 	// returns the item's title
-	public String get_title() {
+	public String getTitle() {
 		return _title;
 	}
 
 	// returns the item's due date
-	public Date get_dueDate() {
+	public Date getDueDate() {
 		return _dueDate;
 	}
 
