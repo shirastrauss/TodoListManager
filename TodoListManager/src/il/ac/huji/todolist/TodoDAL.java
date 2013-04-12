@@ -60,6 +60,10 @@ public class TodoDAL {
 
 		String title = todoItem.getTitle();
 		Date dueDate = todoItem.getDueDate();
+		
+		if(title==null){
+			return FAILURE;
+		}
 
 		// inserts into db
 		long val = dbInsert(title, dueDate);
@@ -117,7 +121,7 @@ public class TodoDAL {
 
 		// updates db
 		long val = dbUpdate(title, dueDate);
-		if(val==ERROR){
+		if(val==ERROR || val==0){
 			return FAILURE;
 		}
 		
@@ -181,7 +185,7 @@ public class TodoDAL {
 
 		// deletes from db
 		long val = dbDelete(title);
-		if(val==ERROR){
+		if(val==ERROR || val==0){
 			return FAILURE;
 		}
 		

@@ -1,7 +1,6 @@
 package il.ac.huji.todolist;
 
 import java.util.Date;
-
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Activity;
@@ -31,7 +30,7 @@ public class TodoListManagerActivity extends Activity {
 	ListView lstTodoItems; // a list view that will contain the todo items
 
 	private TodoDAL todoDal;
-	
+
 	/**
 	 * Called when the activity is first created.
 	 * Parameters:
@@ -48,15 +47,15 @@ public class TodoListManagerActivity extends Activity {
 		lstTodoItems = (ListView) findViewById(R.id.lstTodoItems);
 
 		registerForContextMenu(lstTodoItems); 
-		
+
 		todoDal = new TodoDAL(this);
-		
+
 		// creates an Adapter for displaying the TodoItem list
 		String[] from = { "title", "due" };
 		int[] to = { R.id.txtTodoTitle, R.id.txtTodoDueDate };
 		adapter = new TodoItemDisplayAdapter(this,R.layout.row, todoDal.getCursor(), from, to);
-		
-		lstTodoItems.setAdapter(adapter); 	
+
+		lstTodoItems.setAdapter(adapter);
 	}
 
 
@@ -73,7 +72,7 @@ public class TodoListManagerActivity extends Activity {
 		return true;
 	}
 
-	
+
 	/**
 	 * This function is called whenever an item in the options menu is selected.
 	 * Parameters:
@@ -108,17 +107,17 @@ public class TodoListManagerActivity extends Activity {
 		super.onCreateContextMenu(menu, v, menuInfo);
 
 		getMenuInflater().inflate(R.menu.cntx_menu, menu);
-		
+
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo)menuInfo;
-		
+
 		// sets the header of the context menu to contain 
 		// the title of the selected todo item
 		Cursor c = (Cursor)adapter.getItem(info.position);
 		String title = c.getString(TodoDAL.TITLE_COL);
 		menu.setHeaderTitle(title);
-		
+
 		// checks whether the current todo item is of type "Call"-
-		
+
 		// if not - removes the second menu item (the dial option
 		// which should appear only in context menus of "Call" items)
 		if(!title.startsWith("Call ")){
@@ -138,13 +137,13 @@ public class TodoListManagerActivity extends Activity {
 	public boolean onContextItemSelected(MenuItem item) {
 
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo)item.getMenuInfo();
-		
+
 		Cursor c = (Cursor)adapter.getItem(info.position);
 		String title = c.getString(TodoDAL.TITLE_COL);
 		long due = c.getLong(TodoDAL.DUE_COL);
-		
+
 		TodoItem todoItem = new TodoItem(title, new Date(due));
-		
+
 		// checks which of the menu options was selected
 		switch (item.getItemId()){
 		case R.id.menuItemDelete: // Delete
@@ -160,8 +159,8 @@ public class TodoListManagerActivity extends Activity {
 
 		return true;
 	}
-	
-	
+
+
 	/**
 	 * Called when an activity that was launched exits, giving the requestCode which it was started with,
 	 * the resultCode it returned, and any additional data from it.
@@ -173,17 +172,17 @@ public class TodoListManagerActivity extends Activity {
 	 */
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-		
+
 		// checks if OK was returned,
 		// if so, creates a new TodoItem from the data returned in the intent
 		// and adds the new item to the TodoItems list
 		if(resultCode==RESULT_OK){
-			
+
 			String title = data.getExtras().getString("title");
 			Date dueDate = (Date)data.getExtras().get("dueDate");
-			
+
 			TodoItem todoItem = new TodoItem(title, dueDate);
-			
+
 			todoDal.insert(todoItem);
 		}
 	}
